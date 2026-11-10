@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <!-- 모바일 뷰포트 완벽 대응 및 기본 스케일 설정 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>간호 공부 노트</title>
+  <style>
+    /* === CSS 변수: 파스텔 색상표 및 기본 설정 === */
+    :root {
+      --bg-color: #faf8ff;
+      --text-main: #2f2a45;
+      --text-sub: #6a6485;
+      
+      --theme-terms-bg: #ffe1ec;
+      --theme-terms-text: #a3305e;
+      --theme-terms-accent: #ff9ec0;
+      
+      --theme-anatomy-bg: #d5f5e8;
+      --theme-anatomy-text: #14694b;
+      --theme-anatomy-accent: #8fe3c0;
+      
+      --theme-nursing-bg: #dbe7ff;
+      --theme-nursing-text: #2f50ad;
+      --theme-nursing-accent: #9dbdff;
+      
+      --card-back-bg: #fff3bf;
+      --card-back-text: #665000;
+      
+      --wrong-bg: #ffdde3;
+      --wrong-text: #9b1c31;
+
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+      --radius-pill: 9999px;
+      
+      --font-family: "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", Dotum, sans-serif;
+    }
+
+    /* === 기본 리셋 및 레이아웃 === */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      font-size: 16px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    #app-container {
+      width: 100%;
+      max-width: 560px;
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 24px) 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === 타이포그래피 === */
+    h1, h2, h3 { font-weight: 700; color: var(--text-main); }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    h2 { font-size: 20px; margin-bottom: 16px; }
+    p { color: var(--text-sub); margin-bottom: 12px; }
+
+    /* === 유틸리티 및 공통 요소 === */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .flex { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .gap-2 { gap: 8px; }
+    .gap-4 { gap: 16px; }
+    .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; }
+    
+    button {
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      padding: 0 20px;
+      min-height: 44px; /* 터치 타겟 44px 보장 */
+      transition: opacity 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    
+    .btn-primary { background-color: var(--text-main); color: #fff; }
+    .btn-outline { background-color: transparent; border: 2px solid var(--text-sub); color: var(--text-sub); }
+    .btn-text { background-color: transparent; color: var(--text-sub); font-weight: normal; }
+    
+    input[type="text"], input[type="file"], textarea, select {
+      font-family: inherit;
+      font-size: 16px; /* 모바일 확대 방지 */
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #dcd8e8;
+      background: #fff;
+      color: var(--text-main);
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--text-sub);
+    }
+    
+    .card-panel {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(47, 42, 69, 0.05);
+      margin-bottom: 16px;
+    }
+
+    /* === 커스텀 모달 (브라우저 기본 팝업 대체) === */
+    #modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(47, 42, 69, 0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 16px;
+      opacity: 1; transition: opacity 0.2s;
+    }
+    #modal-overlay.hidden { opacity: 0; pointer-events: none; }
+    .modal-content {
+      background: #fff; border-radius: var(--radius-lg); padding: 24px;
+      width: 100%; max-width: 340px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 12px; }
+    .modal-body { color: var(--text-sub); margin-bottom: 24px; font-size: 15px; }
+    .modal-buttons { display: flex; gap: 8px; justify-content: center; }
+    .modal-buttons button { flex: 1; }
+
+    /* === 헤더 및 네비게이션 === */
+    .app-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; position: sticky; top: 0; background: var(--bg-color);
+      padding-top: env(safe-area-inset-top); padding-bottom: 8px; z-index: 10;
+    }
+    .back-btn {
+      width: 44px; height: 44px; padding: 0; border-radius: 50%;
+      background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      color: var(--text-main); font-size: 20px;
+    }
+    .header-title { font-size: 20px; font-weight: bold; flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; px: 10px; }
+    .header-right { width: 44px; } /* 밸런스용 */
+
+    /* === 과목 카드 테마 === */
+    .subject-card { cursor: pointer; transition: transform 0.2s; display: block; text-decoration: none; }
+    .subject-card:active { transform: scale(0.98); }
+    .theme-terms { background-color: var(--theme-terms-bg); color: var(--theme-terms-text); }
+    .theme-anatomy { background-color: var(--theme-anatomy-bg); color: var(--theme-anatomy-text); }
+    .theme-nursing { background-color: var(--theme-nursing-bg); color: var(--theme-nursing-text); }
+    
+    .subject-icon {
+      width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.5); margin-bottom: 12px;
+    }
+    .progress-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.5); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+    .theme-terms .progress-bar-fill { background-color: var(--theme-terms-accent); }
+    .theme-anatomy .progress-bar-fill { background-color: var(--theme-anatomy-accent); }
+    .theme-nursing .progress-bar-fill { background-color: var(--theme-nursing-accent); }
+
+    /* === 챕터 목록 === */
+    .chapter-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px; background: #fff; border-radius: var(--radius-md);
+      margin-bottom: 12px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .chapter-item:active { background: #f9f8fc; }
+    .chapter-title { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
+    .chapter-meta { font-size: 13px; color: var(--text-sub); }
+
+    /* === 탭 메뉴 === */
+    .tabs { display: flex; background: #ece9f5; border-radius: var(--radius-pill); padding: 4px; margin-bottom: 24px; }
+    .tab-btn {
+      flex: 1; min-height: 40px; background: transparent; color: var(--text-sub);
+      border-radius: var(--radius-pill); font-weight: bold; transition: 0.2s;
+    }
+    .tab-btn.active { background: #fff; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+    /* === 요약 노트 === */
+    .summary-area {
+      width: 100%; height: 60vh; min-height: 300px; padding: 20px 24px;
+      line-height: 2; font-size: 16px; resize: none; border: none;
+      background: #fff; border-radius: var(--radius-lg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      background-image: repeating-linear-gradient(transparent, transparent 31px, #f0eef5 31px, #f0eef5 32px);
+      background-attachment: local;
+    }
+
+    /* === 플래시카드 뒤집기 뷰 === */
+    .flashcard-container { perspective: 1000px; width: 100%; height: 300px; margin: 20px 0; cursor: pointer; }
+    .flashcard-inner {
+      position: relative; width: 100%; height: 100%; text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flashcard-container.flipped .flashcard-inner { transform: rotateY(180deg); }
+    
+    /* 접근성: 움직임 줄이기 */
+    @media (prefers-reduced-motion: reduce) {
+      .flashcard-inner { transition: none; }
+    }
+
+    .flashcard-front, .flashcard-back {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden; border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; box-shadow: 0 8px 24px rgba(47, 42, 69, 0.08);
+      font-weight: bold; word-break: keep-all; overflow-y: auto;
+    }
+    .flashcard-front { font-size: 28px; }
+    .flashcard-back { background: var(--card-back-bg); color: var(--card-back-text); font-size: 20px; transform: rotateY(180deg); }
+
+    .controls-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+    .action-btn { flex: 1; margin: 0 4px; padding: 0 10px; font-size: 15px; }
+
+    /* === 퀴즈 === */
+    .quiz-option {
+      width: 100%; text-align: left; padding: 16px 20px; background: #fff;
+      border: 2px solid #ece9f5; border-radius: var(--radius-md);
+      margin-bottom: 10px; font-size: 16px; color: var(--text-main);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .quiz-option:active { background: #f9f8fc; }
+    .quiz-option.correct { background: var(--theme-anatomy-bg); border-color: var(--theme-anatomy-accent); color: var(--theme-anatomy-text); }
+    .quiz-option.wrong { background: var(--wrong-bg); border-color: #ffb3c1; color: var(--wrong-text); }
+    .quiz-badge { font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: var(--radius-pill); }
+    
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
+    .empty-icon svg { width: 72px; height: 72px; fill: #dcd8e8; margin-bottom: 16px; }
+
+    /* 데이터 목록 (카드 리스트) */
+    .list-item { background: #fff; border-bottom: 1px solid #f0eef5; padding: 16px; display: flex; justify-content: space-between; align-items: center;}
+    .list-item:last-child { border-bottom: none; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    .status-0 { background: #dcd8e8; } /* 없음 */
+    .status-1 { background: var(--theme-anatomy-accent); } /* 알아요 (민트) */
+    .status-2 { background: var(--theme-terms-accent); } /* 헷갈려요 (분홍) */
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+  <!-- 모달 오버레이 -->
+  <div id="modal-overlay" class="hidden">
+    <div class="modal-content">
+      <div id="modal-title" class="modal-title">알림</div>
+      <div id="modal-body" class="modal-body">내용</div>
+      <div id="modal-buttons" class="modal-buttons"></div>
+    </div>
+  </div>
+
+  <!-- 동적 뷰가 렌더링될 영역 -->
+  <div id="view-root"></div>
+</div>
+
+<script>
+  /* =======================================================================
+     1. 전역 상태 및 데이터 스키마
+  ======================================================================= */
+  const STORAGE_KEY = 'nursenote.v1';
+  let db = { chapters: [] };
+
+  const SUBJECTS = {
+    terms: { id: 'terms', name: '의학용어', theme: 'theme-terms', 
+             icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.41l9 9c.36.36.86.58 1.41.58s1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.41zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>' },
+    anatomy: { id: 'anatomy', name: '해부생리', theme: 'theme-anatomy', 
+               icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>' },
+    nursing: { id: 'nursing', name: '기본간호학', theme: 'theme-nursing', 
+               icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>' }
+  };
+
+  const ICONS = {
+    book: '<svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>'
+  };
+
+  // 현재 앱 상태
+  let currentSubjectId = null;
+  let currentChapterId = null;
+  let currentTab = 'summary'; // summary, cards, quiz
+  
+  // 퀴즈 및 카드 학습 상태 임시 저장용
+  let learningState = {
+    cards: [], currentIndex: 0, showOnlyConfused: false, isFlipped: false
+  };
+  let quizState = {
+    questions: [], currentIndex: 0, score: 0, wrongCards: [], answered: false
+  };
+
+  /* =======================================================================
+     2. 유틸리티 및 데이터 관리
+  ======================================================================= */
+  const escapeHTML = (str) => {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag]));
+  };
+
+  const generateId = (prefix) => prefix + '_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+
+  // 모달 띄우기
+  const showModal = (title, body, buttons) => {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-body').innerHTML = body; // body는 내부에서 안전하게 생성하여 넘김
+    const btnContainer = document.getElementById('modal-buttons');
+    btnContainer.innerHTML = '';
+    buttons.forEach(btn => {
+      const b = document.createElement('button');
+      b.className = btn.primary ? 'btn-primary' : 'btn-outline';
+      b.innerText = btn.text;
+      b.onclick = () => { closeModal(); if (btn.onClick) btn.onClick(); };
+      btnContainer.appendChild(b);
+    });
+    document.getElementById('modal-overlay').classList.remove('hidden');
+  };
+  const closeModal = () => { document.getElementById('modal-overlay').classList.add('hidden'); };
+
+  // 데이터 저장 및 불러오기
+  const loadData = () => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        db = JSON.parse(data);
+      } else {
+        // 최초 실행: 예시 데이터 주입
+        injectExampleData();
+      }
+    } catch (e) {
+      showModal('안내', '저장 공간 접근이 차단되어 임시 메모리로만 동작합니다.<br>이 창을 닫으면 내용이 사라집니다.', [{text:'확인', primary:true}]);
+      injectExampleData();
+    }
+  };
+
+  const saveData = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    } catch (e) {
+      showModal('저장 실패', '저장하지 못했어요. 브라우저 용량이 가득 찼거나 차단되었을 수 있습니다. 백업 파일로 내보내 두세요.', [{text:'확인', primary:true}]);
+    }
+  };
+
+  const injectExampleData = () => {
+    db.chapters = [{
+      id: generateId('ch'),
+      subject: 'terms',
+      title: '의학용어 기본 (예시)',
+      summary: '이 단원에서는 순환기계 및 호흡기계와 관련된 기본적인 의학용어를 다룹니다.\n요약 노트에 자유롭게 정리해 보세요.',
+      cards: [
+        { id: generateId('c'), f: 'Tachycardia', b: '빈맥 (빠른맥)', s: 0 },
+        { id: generateId('c'), f: 'Bradycardia', b: '서맥 (느린맥)', s: 0 },
+        { id: generateId('c'), f: 'Hypertension', b: '고혈압', s: 0 },
+        { id: generateId('c'), f: 'Hypotension', b: '저혈압', s: 0 },
+        { id: generateId('c'), f: 'Dyspnea', b: '호흡곤란', s: 0 }
+      ],
+      best: null, tries: 0, createdAt: Date.now(), updatedAt: Date.now(),
+      _isExample: true // 퀴즈 3문제를 위해 임시 마킹
+    }];
+    saveData();
+  };
+
+  let debounceTimer;
+  const autoSave = (fn) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { fn(); saveData(); showSaveStatus(); }, 700);
+  };
+  const showSaveStatus = () => {
+    const el = document.getElementById('save-status');
+    if (el) {
+      el.innerText = '저장됨 ✓';
+      setTimeout(() => el.innerText = '', 2000);
+    }
+  };
+
+  // 내보내기/불러오기
+  const exportData = () => {
+    const exportObj = { app: 'nursenote', version: 1, exportedAt: Date.now(), chapters: db.chapters };
+    const blob = new Blob([JSON.stringify(exportObj)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+    a.href = url; a.download = `간호공부노트-백업-${dateStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importData = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (parsed.app !== 'nursenote' || !parsed.chapters) throw new Error('유효하지 않은 파일');
+        
+        showModal('덮어쓰기 확인', '현재 내용이 백업 파일 내용으로 바뀝니다.<br>정말 계속할까요?', [
+          { text: '취소' },
+          { text: '덮어쓰기', primary: true, onClick: () => {
+              db.chapters = parsed.chapters;
+              saveData();
+              navigate('#home');
+            }
+          }
+        ]);
+      } catch (err) {
+        showModal('오류', '이 앱의 백업 파일이 아니거나 파일이 깨졌습니다.', [{text:'확인', primary:true}]);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  /* =======================================================================
+     3. 라우팅 및 렌더링 코어
+  ======================================================================= */
+  const root = document.getElementById('view-root');
+
+  const navigate = (hash) => {
+    window.history.pushState(null, '', hash);
+    router();
+  };
+
+  const router = () => {
+    const hash = window.location.hash || '#home';
+    root.innerHTML = ''; // Clear
+
+    if (hash === '#home') {
+      renderHome();
+    } else if (hash.startsWith('#sub-')) {
+      currentSubjectId = hash.replace('#sub-', '');
+      renderSubject();
+    } else if (hash.startsWith('#ch-')) {
+      const parts = hash.split('?tab=');
+      currentChapterId = parts[0].replace('#ch-', '');
+      currentTab = parts[1] || 'summary';
+      const chapter = db.chapters.find(c => c.id === currentChapterId);
+      if (!chapter) { navigate('#home'); return; }
+      currentSubjectId = chapter.subject;
+      renderChapter();
+    } else {
+      navigate('#home');
+    }
+    window.scrollTo(0,0);
+  };
+
+  window.addEventListener('hashchange', router);
+  // 종료/숨김 시 강제 저장
+  window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveData(); });
+  window.addEventListener('pagehide', saveData);
+
+  /* =======================================================================
+     4. 화면 렌더링 함수
+  ======================================================================= */
+
+  // -----------------------------------------------------------------------
+  // [홈 화면]
+  // -----------------------------------------------------------------------
+  const renderHome = () => {
+    let html = `
+      <div class="mb-4 text-center">
+        <h1 style="font-size:28px; margin-top:10px;">간호 공부 노트</h1>
+        <p>과목을 선택하고 암기를 시작하세요!</p>
+      </div>
+      <div class="flex-col gap-4">
+    `;
+
+    Object.values(SUBJECTS).forEach(sub => {
+      const chaps = db.chapters.filter(c => c.subject === sub.id);
+      const totalCards = chaps.reduce((sum, c) => sum + c.cards.length, 0);
+      const memorized = chaps.reduce((sum, c) => sum + c.cards.filter(card => card.s === 1).length, 0);
+      const percent = totalCards === 0 ? 0 : Math.round((memorized / totalCards) * 100);
+
+      html += `
+        <a href="#sub-${sub.id}" class="card-panel subject-card ${sub.theme}">
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="subject-icon" style="color:var(--${sub.theme}-text)">${sub.icon}</div>
+              <h2>${sub.name}</h2>
+              <p style="color:inherit; opacity:0.8; margin:0; font-size:14px;">단원 ${chaps.length}개 / 카드 ${totalCards}장</p>
+            </div>
+          </div>
+          <div style="margin-top:16px; font-size:14px; display:flex; justify-content:space-between;">
+            <span>외운 카드 ${memorized} / ${totalCards}</span>
+            <span>${percent}%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+          </div>
+        </a>
+      `;
+    });
+
+    html += `
+      </div>
+      <div class="flex justify-center gap-4" style="margin-top:40px;">
+        <button class="btn-outline" onclick="exportData()" style="font-size:14px;">내보내기 (백업)</button>
+        <label class="btn-outline" style="font-size:14px; display:inline-flex; align-items:center; cursor:pointer;">
+          불러오기
+          <input type="file" accept=".json" class="hidden" onchange="if(this.files.length>0) importData(this.files[0])">
+        </label>
+      </div>
+    `;
+    root.innerHTML = html;
+  };
+
+  // -----------------------------------------------------------------------
+  // [과목 화면]
+  // -----------------------------------------------------------------------
+  const renderSubject = () => {
+    const sub = SUBJECTS[currentSubjectId];
+    const chaps = db.chapters.filter(c => c.subject === currentSubjectId).sort((a,b) => a.createdAt - b.createdAt);
+
+    let html = `
+      <div class="app-header">
+        <button class="back-btn" onclick="navigate('#home')">←</button>
+        <div class="header-title" style="color: var(--${sub.theme}-text);">${sub.name}</div>
+        <div class="header-right"></div>
+      </div>
+      
+      <div class="flex gap-2 mb-4">
+        <input type="text" id="new-chap-title" placeholder="새 단원 이름 입력..." onkeydown="if(event.key==='Enter') addChapter()">
+        <button class="btn-primary" onclick="addChapter()" style="background-color:var(--${sub.theme}-text)">추가</button>
+      </div>
+    `;
+
+    if (chaps.length === 0) {
+      html += `
+        <div class="empty-state">
+          <div class="empty-icon">${ICONS.book}</div>
+          <p>아직 단원이 없어요.</p>
+          <button class="btn-outline mt-4" onclick="addExampleChapter()">예시 단원 넣어보기</button>
+        </div>
+      `;
+    } else {
+      html += `<div class="flex-col">`;
+      chaps.forEach(c => {
+        const bestText = c.best !== null ? `최고 ${c.best}점` : '퀴즈 기록 없음';
+        html += `
+          <div class="chapter-item" onclick="navigate('#ch-${c.id}?tab=summary')">
+            <div>
+              <div class="chapter-title">${escapeHTML(c.title)}</div>
+              <div class="chapter-meta">카드 ${c.cards.length}장 · ${bestText}</div>
+            </div>
+            <div style="color: #dcd8e8;">▶</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    root.innerHTML = html;
+  };
+
+  window.addChapter = () => {
+    const input = document.getElementById('new-chap-title');
+    const title = input.value.trim();
+    if (!title) return;
+    const newChap = {
+      id: generateId('ch'), subject: currentSubjectId, title: title, summary: '', cards: [], best: null, tries: 0, createdAt: Date.now(), updatedAt: Date.now()
+    };
+    db.chapters.push(newChap);
+    saveData();
+    renderSubject();
+  };
+
+  window.addExampleChapter = () => {
+    const newChap = {
+      id: generateId('ch'), subject: currentSubjectId, title: '순환기계 구조 (예시)', summary: '심장과 혈관에 대한 기본 내용', 
+      cards: [
+        { id: generateId('c'), f: 'Atrium', b: '심방', s: 0 },
+        { id: generateId('c'), f: 'Ventricle', b: '심실', s: 0 },
+        { id: generateId('c'), f: 'Aorta', b: '대동맥', s: 0 },
+        { id: generateId('c'), f: 'Vein', b: '정맥', s: 0 },
+        { id: generateId('c'), f: 'Capillary', b: '모세혈관', s: 0 }
+      ],
+      best: null, tries: 0, createdAt: Date.now(), updatedAt: Date.now()
+    };
+    db.chapters.push(newChap);
+    saveData();
+    renderSubject();
+  };
+
+  // -----------------------------------------------------------------------
+  // [단원 화면 공통 프레임]
+  // -----------------------------------------------------------------------
+  const renderChapter = () => {
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    const sub = SUBJECTS[currentSubjectId];
+    
+    let html = `
+      <div class="app-header">
+        <button class="back-btn" onclick="navigate('#sub-${currentSubjectId}')">←</button>
+        <div class="flex-col" style="flex:1; text-align:center; padding: 0 10px;">
+          <input type="text" id="chap-title-edit" value="${escapeHTML(c.title)}" 
+                 style="font-size:18px; font-weight:bold; text-align:center; padding:4px; border:none; background:transparent; margin:0;"
+                 oninput="updateChapTitle(this.value)">
+          <div id="save-status" style="font-size:12px; color:var(--text-sub); height:18px;"></div>
+        </div>
+        <div class="header-right"></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn ${currentTab === 'summary' ? 'active' : ''}" onclick="navigate('#ch-${c.id}?tab=summary')">요약</button>
+        <button class="tab-btn ${currentTab === 'cards' ? 'active' : ''}" onclick="navigate('#ch-${c.id}?tab=cards')">카드</button>
+        <button class="tab-btn ${currentTab === 'quiz' ? 'active' : ''}" onclick="navigate('#ch-${c.id}?tab=quiz')">퀴즈</button>
+      </div>
+      
+      <div id="tab-content"></div>
+    `;
+    root.innerHTML = html;
+    
+    const content = document.getElementById('tab-content');
+    if (currentTab === 'summary') renderTabSummary(content, c);
+    else if (currentTab === 'cards') renderTabCards(content, c);
+    else if (currentTab === 'quiz') renderTabQuiz(content, c, sub);
+  };
+
+  window.updateChapTitle = (val) => {
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    if(c) {
+      c.title = val;
+      autoSave(() => { c.updatedAt = Date.now(); });
+    }
+  };
+
+  window.deleteChapter = () => {
+    showModal('단원 삭제', '정말 이 단원을 지울까요?<br>작성한 요약과 카드가 모두 사라집니다.', [
+      { text: '취소' },
+      { text: '삭제하기', primary: true, onClick: () => {
+          db.chapters = db.chapters.filter(chap => chap.id !== currentChapterId);
+          saveData();
+          navigate(`#sub-${currentSubjectId}`);
+        }
+      }
+    ]);
+  };
+
+  // -----------------------------------------------------------------------
+  // [요약 탭]
+  // -----------------------------------------------------------------------
+  const renderTabSummary = (container, chapter) => {
+    container.innerHTML = `
+      <textarea class="summary-area" id="summary-text" placeholder="이 단원의 요약 내용을 자유롭게 적어보세요. 입력하면 자동 저장됩니다.">${escapeHTML(chapter.summary)}</textarea>
+      <div class="text-center" style="margin-top: 40px; margin-bottom: 20px;">
+        <button class="btn-text" style="color: var(--wrong-text);" onclick="deleteChapter()">이 단원 삭제하기</button>
+      </div>
+    `;
+    const ta = document.getElementById('summary-text');
+    ta.oninput = () => {
+      chapter.summary = ta.value;
+      autoSave(() => { chapter.updatedAt = Date.now(); });
+    };
+  };
+
+  // -----------------------------------------------------------------------
+  // [카드 탭]
+  // -----------------------------------------------------------------------
+  const renderTabCards = (container, chapter) => {
+    // 뷰 분리: 학습 모드 vs 목록/추가 모드
+    container.innerHTML = `
+      <div id="cards-learn-area"></div>
+      <div style="margin: 32px 0; border-top: 2px dashed #ece9f5;"></div>
+      
+      <div class="card-panel">
+        <h3 style="font-size:16px; margin-bottom:12px;">새 카드 추가</h3>
+        <div class="flex-col gap-2">
+          <input type="text" id="card-f" placeholder="용어 (앞면)">
+          <input type="text" id="card-b" placeholder="뜻 (뒷면)">
+          <button class="btn-primary" onclick="addSingleCard()" style="margin-top:8px;">추가</button>
+        </div>
+        
+        <details style="margin-top:16px; border-top:1px solid #f0eef5; padding-top:12px;">
+          <summary style="cursor:pointer; color:var(--text-sub); font-weight:bold;">여러 개 한번에 추가하기 ▼</summary>
+          <p style="font-size:13px; margin-top:8px;">한 줄에 하나씩 <code>용어 = 뜻</code> 형식으로 적어주세요.</p>
+          <textarea id="card-bulk" style="height:120px; margin-bottom:8px;"></textarea>
+          <button class="btn-outline" style="width:100%" onclick="addBulkCards()">여러 개 추가</button>
+        </details>
+      </div>
+
+      <div class="card-panel" style="padding:0; overflow:hidden;">
+        <div style="padding:16px; background:#faf8ff; border-bottom:1px solid #f0eef5; font-weight:bold;">
+          카드 목록 (총 <span id="card-count">${chapter.cards.length}</span>장)
+        </div>
+        <div id="card-list"></div>
+      </div>
+    `;
+    
+    initCardLearning(chapter);
+    renderCardList(chapter);
+  };
+
+  // 1. 학습 영역
+  const initCardLearning = (chapter) => {
+    learningState.showOnlyConfused = false;
+    learningState.isFlipped = false;
+    buildLearningDeck(chapter);
+  };
+
+  const buildLearningDeck = (chapter, shuffle = false) => {
+    let list = chapter.cards;
+    if (learningState.showOnlyConfused) {
+      list = list.filter(c => c.s === 2);
+    }
+    learningState.cards = [...list];
+    if (shuffle) {
+      learningState.cards.sort(() => Math.random() - 0.5);
+    }
+    learningState.currentIndex = 0;
+    learningState.isFlipped = false;
+    renderLearningArea(chapter);
+  };
+
+  const renderLearningArea = (chapter) => {
+    const area = document.getElementById('cards-learn-area');
+    const total = learningState.cards.length;
+    
+    if (total === 0) {
+      if (chapter.cards.length === 0) {
+        area.innerHTML = `<div class="empty-state"><div class="empty-icon">${ICONS.book}</div><p>추가된 카드가 없어요.</p></div>`;
+      } else {
+        area.innerHTML = `<div class="empty-state"><p>헷갈리는 카드가 없습니다! 🎉</p><button class="btn-outline mt-4" onclick="toggleConfusedOnly()">전체 보기</button></div>`;
+      }
+      return;
+    }
+
+    const cur = learningState.currentIndex;
+    const card = learningState.cards[cur];
+    
+    area.innerHTML = `
+      <div class="flex justify-between items-center mb-4" style="font-size:14px; color:var(--text-sub);">
+        <label><input type="checkbox" ${learningState.showOnlyConfused ? 'checked' : ''} onchange="toggleConfusedOnly()"> 헷갈려요만 보기</label>
+        <button class="btn-text" style="font-size:13px; padding:0;" onclick="shuffleCards()">🔀 섞기</button>
+      </div>
+      
+      <div class="text-center" style="font-weight:bold; margin-bottom:8px; color:var(--text-main);">
+        ${cur + 1} / ${total}
+      </div>
+      <div class="progress-bar-bg" style="height:4px; margin-bottom:16px;">
+        <div class="progress-bar-fill" style="background:var(--text-main); width:${((cur + 1) / total) * 100}%"></div>
+      </div>
+
+      <div class="flashcard-container ${learningState.isFlipped ? 'flipped' : ''}" onclick="flipCard()">
+        <div class="flashcard-inner">
+          <div class="flashcard-front">${escapeHTML(card.f).replace(/\n/g, '<br>')}</div>
+          <div class="flashcard-back">${escapeHTML(card.b).replace(/\n/g, '<br>')}</div>
+        </div>
+      </div>
+      
+      <div class="controls-row">
+        <button class="action-btn btn-outline" style="flex:0.5" onclick="prevCard()">이전</button>
+        <button class="action-btn" style="background:var(--theme-terms-bg); color:var(--theme-terms-text);" onclick="markCard(2)">헷갈려요</button>
+        <button class="action-btn" style="background:var(--theme-anatomy-bg); color:var(--theme-anatomy-text);" onclick="markCard(1)">알아요</button>
+        <button class="action-btn btn-outline" style="flex:0.5" onclick="nextCard()">다음</button>
+      </div>
+      <div class="text-center mt-4" style="font-size:12px; color:var(--text-sub);">좌우로 밀거나 카드를 눌러 뒤집으세요</div>
+    `;
+
+    // 스와이프 이벤트
+    const el = area.querySelector('.flashcard-container');
+    let startX = 0;
+    el.addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive:true});
+    el.addEventListener('touchend', e => {
+      const endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50) nextCard();
+      else if (endX - startX > 50) prevCard();
+    }, {passive:true});
+  };
+
+  window.toggleConfusedOnly = () => {
+    learningState.showOnlyConfused = !learningState.showOnlyConfused;
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    buildLearningDeck(c);
+  };
+  window.shuffleCards = () => {
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    buildLearningDeck(c, true);
+  };
+  window.flipCard = () => {
+    learningState.isFlipped = !learningState.isFlipped;
+    const el = document.querySelector('.flashcard-container');
+    if(el) el.classList.toggle('flipped', learningState.isFlipped);
+  };
+  window.nextCard = () => {
+    if (learningState.currentIndex < learningState.cards.length - 1) {
+      learningState.currentIndex++;
+      learningState.isFlipped = false;
+      const c = db.chapters.find(chap => chap.id === currentChapterId);
+      renderLearningArea(c);
+    } else {
+      showDeckEnd();
+    }
+  };
+  window.prevCard = () => {
+    if (learningState.currentIndex > 0) {
+      learningState.currentIndex--;
+      learningState.isFlipped = false;
+      const c = db.chapters.find(chap => chap.id === currentChapterId);
+      renderLearningArea(c);
+    }
+  };
+  window.markCard = (status) => {
+    const card = learningState.cards[learningState.currentIndex];
+    card.s = status;
+    saveData();
+    renderCardList(db.chapters.find(chap => chap.id === currentChapterId)); // 목록 업데이트
+    nextCard();
+  };
+
+  const showDeckEnd = () => {
+    const area = document.getElementById('cards-learn-area');
+    const knownCount = learningState.cards.filter(c => c.s===1).length;
+    const confusedCount = learningState.cards.filter(c => c.s===2).length;
+    
+    area.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:48px; margin-bottom:16px;">🎉</div>
+        <h2>한 바퀴 끝!</h2>
+        <p>알아요: <strong>${knownCount}</strong>개 / 헷갈려요: <strong>${confusedCount}</strong>개</p>
+        <div class="flex gap-2 mt-4 w-full">
+          <button class="btn-outline" onclick="buildLearningDeck(db.chapters.find(c => c.id === currentChapterId))">처음부터 다시</button>
+          ${confusedCount > 0 ? `<button class="btn-primary" onclick="learningState.showOnlyConfused=true; buildLearningDeck(db.chapters.find(c => c.id === currentChapterId))">헷갈리는 것만</button>` : ''}
+        </div>
+      </div>
+    `;
+  };
+
+  // 2. 카드 추가 로직
+  window.addSingleCard = () => {
+    const f = document.getElementById('card-f').value.trim();
+    const b = document.getElementById('card-b').value.trim();
+    if (!f || !b) return;
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    if (c.cards.length >= 300) { alert('최대 300장까지만 추가할 수 있습니다.'); return; }
+    
+    c.cards.push({ id: generateId('c'), f, b, s: 0 });
+    saveData();
+    document.getElementById('card-f').value = '';
+    document.getElementById('card-b').value = '';
+    
+    initCardLearning(c);
+    renderCardList(c);
+  };
+
+  window.addBulkCards = () => {
+    const text = document.getElementById('card-bulk').value;
+    const lines = text.split('\n');
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    let added = 0;
+
+    lines.forEach(line => {
+      if(c.cards.length >= 300) return;
+      let parts = line.split('=');
+      if (parts.length < 2) parts = line.split('\t');
+      if (parts.length < 2) parts = line.split(':');
+      
+      if (parts.length >= 2) {
+        const f = parts[0].trim();
+        const b = parts.slice(1).join('=').trim(); // 뒤에 =가 더 있을 경우 대비
+        if (f && b) {
+          c.cards.push({ id: generateId('c'), f, b, s: 0 });
+          added++;
+        }
+      }
+    });
+
+    if (added > 0) {
+      saveData();
+      document.getElementById('card-bulk').value = '';
+      initCardLearning(c);
+      renderCardList(c);
+    }
+  };
+
+  // 3. 리스트 렌더링
+  const renderCardList = (chapter) => {
+    const list = document.getElementById('card-list');
+    document.getElementById('card-count').innerText = chapter.cards.length;
+    let html = '';
+    chapter.cards.forEach((card, idx) => {
+      const statusClass = `status-${card.s}`;
+      const statusText = card.s === 1 ? '알아요' : (card.s === 2 ? '헷갈려요' : '상태 없음');
+      html += `
+        <div class="list-item" id="item-${card.id}">
+          <div style="flex:1; padding-right:12px;">
+            <div style="font-weight:bold; margin-bottom:4px;">${escapeHTML(card.f)}</div>
+            <div style="color:var(--text-sub); font-size:14px;">${escapeHTML(card.b)}</div>
+            <div style="font-size:12px; margin-top:8px; color:#aaa; display:flex; align-items:center;">
+              <span class="status-dot ${statusClass}"></span> ${statusText}
+            </div>
+          </div>
+          <div class="flex-col gap-2">
+            <button class="btn-text" style="padding:0 8px; min-height:32px;" onclick="editCard('${card.id}')">수정</button>
+            <button class="btn-text" style="padding:0 8px; min-height:32px; color:var(--wrong-text);" onclick="deleteCard('${card.id}')">삭제</button>
+          </div>
+        </div>
+      `;
+    });
+    list.innerHTML = html;
+  };
+
+  window.editCard = (cardId) => {
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    const card = c.cards.find(x => x.id === cardId);
+    const item = document.getElementById(`item-${card.id}`);
+    
+    item.innerHTML = `
+      <div style="width:100%" class="flex-col gap-2">
+        <input type="text" id="edit-f-${card.id}" value="${escapeHTML(card.f)}">
+        <input type="text" id="edit-b-${card.id}" value="${escapeHTML(card.b)}">
+        <div class="flex justify-end gap-2 mt-2">
+          <button class="btn-outline" style="min-height:36px; padding:0 12px;" onclick="renderCardList(db.chapters.find(chap => chap.id === '${currentChapterId}'))">취소</button>
+          <button class="btn-primary" style="min-height:36px; padding:0 12px;" onclick="saveEditCard('${card.id}')">저장</button>
+        </div>
+      </div>
+    `;
+  };
+
+  window.saveEditCard = (cardId) => {
+    const f = document.getElementById(`edit-f-${cardId}`).value.trim();
+    const b = document.getElementById(`edit-b-${cardId}`).value.trim();
+    if (!f || !b) return;
+    
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    const card = c.cards.find(x => x.id === cardId);
+    card.f = f; card.b = b;
+    saveData();
+    initCardLearning(c); // 학습덱 리셋 (수정 반영)
+    renderCardList(c);
+  };
+
+  window.deleteCard = (cardId) => {
+    const c = db.chapters.find(chap => chap.id === currentChapterId);
+    c.cards = c.cards.filter(x => x.id !== cardId);
+    saveData();
+    initCardLearning(c);
+    renderCardList(c);
+  };
+
+  // -----------------------------------------------------------------------
+  // [퀴즈 탭]
+  // -----------------------------------------------------------------------
+  const renderTabQuiz = (container, chapter, subject) => {
+    container.innerHTML = `<div id="quiz-root"></div>`;
+    
+    // 과목 전체 카드 가져오기 (오답 보기에 사용)
+    const allSubjectCards = db.chapters
+                              .filter(c => c.subject === currentSubjectId)
+                              .flatMap(c => c.cards);
+
+    if (allSubjectCards.length < 5) {
+      document.getElementById('quiz-root').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">${ICONS.book}</div>
+          <p>같은 과목에 카드가 5장 이상 있어야<br>퀴즈를 풀 수 있어요.<br>(현재 ${allSubjectCards.length}장)</p>
+          <button class="btn-outline mt-4" onclick="navigate('#ch-${chapter.id}?tab=cards')">카드 추가하러 가기</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (chapter.cards.length === 0) {
+       document.getElementById('quiz-root').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">${ICONS.book}</div>
+          <p>이 단원에는 카드가 없습니다.</p>
+        </div>
+      `;
+      return;
+    }
+
+    renderQuizStart(chapter);
+  };
+
+  const renderQuizStart = (chapter) => {
+    const maxQ = chapter._isExample ? 3 : Math.min(10, chapter.cards.length);
+    const root = document.getElementById('quiz-root');
+    
+    root.innerHTML = `
+      <div class="card-panel text-center">
+        <h2>단원 퀴즈</h2>
+        <p>이 단원의 카드 중 최대 ${maxQ}문제가 출제됩니다.<br>오지선다 객관식입니다.</p>
+        
+        <div style="margin:24px 0; padding:16px; background:#f9f8fc; border-radius:12px;">
+          <div style="font-size:14px; color:var(--text-sub);">내 최고 기록</div>
+          <div style="font-size:24px; font-weight:bold; color:var(--text-main);">
+            ${chapter.best !== null ? chapter.best + '점' : '-'}
+          </div>
+          <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">도전 횟수: ${chapter.tries}회</div>
+        </div>
+
+        <button class="btn-primary w-full" style="width:100%; font-size:18px;" onclick="startQuiz(false)">새로운 퀴즈 시작</button>
+      </div>
+    `;
+  };
+
+  window.startQuiz = (onlyWrong = false) => {
+    const chapter = db.chapters.find(c => c.id === currentChapterId);
+    let targetCards = [];
+    
+    if (onlyWrong) {
+      targetCards = chapter.cards.filter(c => quizState.wrongCards.includes(c.id));
+    } else {
+      // 챕터 내 전체 카드 중 랜덤 n개 (예시 단원이면 3개, 아니면 최대 10개)
+      const maxCount = chapter._isExample ? 3 : 10;
+      targetCards = [...chapter.cards].sort(() => Math.random() - 0.5).slice(0, maxCount);
+    }
+
+    // 과목 전체 풀
+    const allSubjectCards = db.chapters.filter(c => c.subject === currentSubjectId).flatMap(c => c.cards);
+
+    quizState = {
+      questions: [], currentIndex: 0, score: 0, wrongCards: [], answered: false, isOnlyWrongMode: onlyWrong
+    };
+
+    targetCards.forEach(card => {
+      // 뱡항 결정 (0: 용어->뜻, 1: 뜻->용어)
+      const dir = Math.random() > 0.5 ? 0 : 1;
+      const qText = dir === 0 ? card.f : card.b;
+      const aText = dir === 0 ? card.b : card.f;
+      
+      // 오답 추출
+      let wrongPool = allSubjectCards.filter(c => c.id !== card.id);
+      wrongPool.sort(() => Math.random() - 0.5);
+      
+      let options = [ { text: aText, isCorrect: true, cardId: card.id } ];
+      let addedTexts = new Set([aText]);
+
+      for (let w of wrongPool) {
+        if (options.length >= 5) break;
+        const wText = dir === 0 ? w.b : w.f;
+        if (!addedTexts.has(wText)) {
+          options.push({ text: wText, isCorrect: false, cardId: w.id });
+          addedTexts.add(wText);
+        }
+      }
+      
+      // 만약 유니크 오답이 부족하면 더미 텍스트 추가 (보통 과목 카드가 5장이면 부족하지 않음)
+      while (options.length < 5) {
+        options.push({ text: '오답 ' + Math.random().toString(36).substr(2,4), isCorrect: false, cardId: 'dummy' });
+      }
+
+      options.sort(() => Math.random() - 0.5);
+
+      quizState.questions.push({
+        cardId: card.id, qText, options, dir
+      });
+    });
+
+    renderQuizQuestion();
+  };
+
+  const renderQuizQuestion = () => {
+    const root = document.getElementById('quiz-root');
+    const q = quizState.questions[quizState.currentIndex];
+    const total = quizState.questions.length;
+    const progress = ((quizState.currentIndex) / total) * 100;
+
+    const alphabet = ['A', 'B', 'C', 'D', 'E'];
+
+    let html = `
+      <div class="flex justify-between items-center mb-2" style="font-size:14px; font-weight:bold;">
+        <span>문제 ${quizState.currentIndex + 1} / ${total}</span>
+      </div>
+      <div class="progress-bar-bg" style="height:6px; margin-bottom:24px;">
+        <div class="progress-bar-fill" style="background:var(--${SUBJECTS[currentSubjectId].theme}-accent); width:${progress}%"></div>
+      </div>
+
+      <div class="card-panel text-center" style="margin-bottom:24px; min-height:120px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:bold;">
+        ${escapeHTML(q.qText).replace(/\n/g, '<br>')}
+      </div>
+
+      <div class="flex-col gap-2" id="quiz-options">
+    `;
+
+    q.options.forEach((opt, idx) => {
+      html += `
+        <button class="quiz-option" id="opt-${idx}" onclick="selectQuizOption(${idx})">
+          <span style="display:flex; align-items:center;">
+            <span style="display:inline-block; width:24px; font-weight:bold; color:var(--text-sub);">${alphabet[idx]}</span>
+            <span>${escapeHTML(opt.text)}</span>
+          </span>
+          <span id="badge-${idx}" class="quiz-badge hidden"></span>
+        </button>
+      `;
+    });
+
+    html += `
+      </div>
+      
+      <div id="quiz-feedback" class="text-center mt-4 hidden" style="font-weight:bold; min-height:24px;"></div>
+
+      <button id="btn-next-q" class="btn-primary w-full mt-4 hidden" style="width:100%" onclick="nextQuizQuestion()">
+        ${quizState.currentIndex === total - 1 ? '결과 보기' : '다음 문제'}
+      </button>
+    `;
+
+    root.innerHTML = html;
+  };
+
+  window.selectQuizOption = (idx) => {
+    if (quizState.answered) return;
+    quizState.answered = true;
+
+    const q = quizState.questions[quizState.currentIndex];
+    const chapter = db.chapters.find(c => c.id === currentChapterId);
+    const card = chapter.cards.find(c => c.id === q.cardId);
+
+    const isCorrect = q.options[idx].isCorrect;
+    const btn = document.getElementById(`opt-${idx}`);
+    const badge = document.getElementById(`badge-${idx}`);
+    const feedback = document.getElementById('quiz-feedback');
+    const nextBtn = document.getElementById('btn-next-q');
+
+    badge.classList.remove('hidden');
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      badge.innerText = '정답';
+      feedback.innerText = '정답입니다! 🎉';
+      feedback.style.color = `var(--${SUBJECTS[currentSubjectId].theme}-text)`;
+      quizState.score++;
+      
+      // 틀린 것만 풀기 모드에서 맞추면 '알아요'로 변경
+      if (quizState.isOnlyWrongMode && card) {
+        card.s = 1; 
+      }
+    } else {
+      btn.classList.add('wrong');
+      badge.innerText = '오답';
+      feedback.innerText = '틀렸습니다.';
+      feedback.style.color = 'var(--wrong-text)';
+      
+      if (card) {
+        card.s = 2; // 틀리면 '헷갈려요'로 변경
+        quizState.wrongCards.push(card.id);
+      }
+
+      // 정답 표시해주기
+      const correctIdx = q.options.findIndex(o => o.isCorrect);
+      const cBtn = document.getElementById(`opt-${correctIdx}`);
+      const cBadge = document.getElementById(`badge-${correctIdx}`);
+      cBtn.classList.add('correct');
+      cBadge.innerText = '정답';
+      cBadge.classList.remove('hidden');
+    }
+
+    saveData();
+    nextBtn.classList.remove('hidden');
+    feedback.classList.remove('hidden');
+  };
+
+  window.nextQuizQuestion = () => {
+    if (quizState.currentIndex < quizState.questions.length - 1) {
+      quizState.currentIndex++;
+      quizState.answered = false;
+      renderQuizQuestion();
+    } else {
+      finishQuiz();
+    }
+  };
+
+  const finishQuiz = () => {
+    const chapter = db.chapters.find(c => c.id === currentChapterId);
+    const total = quizState.questions.length;
+    const finalScore = Math.round((quizState.score / total) * 100);
+    
+    // 일반 모드일 때만 기록 갱신
+    if (!quizState.isOnlyWrongMode) {
+      chapter.tries++;
+      if (chapter.best === null || finalScore > chapter.best) {
+        chapter.best = finalScore;
+      }
+      saveData();
+    }
+
+    const root = document.getElementById('quiz-root');
+    let html = `
+      <div class="card-panel text-center">
+        <h2>퀴즈 결과</h2>
+        <div style="font-size:48px; font-weight:bold; color:var(--${SUBJECTS[currentSubjectId].theme}-text); margin: 16px 0;">
+          ${finalScore}점
+        </div>
+        <p>${quizState.score} / ${total} 문제 정답</p>
+        <p style="font-weight:bold;">${finalScore === 100 ? '완벽해요! 🎉' : (finalScore >= 70 ? '잘했어요! 조금만 더 복습해봐요.' : '괜찮아요. 다시 한번 확인해볼까요?')}</p>
+      </div>
+    `;
+
+    if (quizState.wrongCards.length > 0) {
+      html += `
+        <div class="mt-4 mb-2" style="font-weight:bold; font-size:18px;">틀린 문제 (${quizState.wrongCards.length}개)</div>
+        <p style="font-size:13px; color:var(--text-sub);">틀린 카드는 자동으로 '헷갈려요' 상태가 되었습니다.</p>
+        <div class="flex-col gap-2 mt-2 mb-4">
+      `;
+      quizState.questions.forEach(q => {
+        if (quizState.wrongCards.includes(q.cardId)) {
+          const card = chapter.cards.find(c => c.id === q.cardId);
+          if (card) {
+            html += `
+              <div style="background:#fff; border-radius:12px; padding:12px; border-left: 4px solid var(--wrong-text);">
+                <div style="font-weight:bold;">${escapeHTML(card.f)}</div>
+                <div style="color:var(--text-sub);">${escapeHTML(card.b)}</div>
+              </div>
+            `;
+          }
+        }
+      });
+      html += `</div>`;
+    }
+
+    html += `
+      <div class="flex-col gap-2">
+        ${quizState.wrongCards.length > 0 ? `<button class="btn-primary w-full" style="width:100%" onclick="startQuiz(true)">틀린 것만 다시 풀기</button>` : ''}
+        <button class="btn-outline w-full" style="width:100%" onclick="startQuiz(false)">처음부터 다시</button>
+        <button class="btn-text w-full" style="width:100%" onclick="navigate('#ch-${chapter.id}?tab=cards')">카드 보러 가기</button>
+      </div>
+    `;
+
+    root.innerHTML = html;
+  };
+
+  /* =======================================================================
+     5. 초기화
+  ======================================================================= */
+  window.onload = () => {
+    loadData();
+    router();
+  };
+
+</script>
+</body>
+</html>
